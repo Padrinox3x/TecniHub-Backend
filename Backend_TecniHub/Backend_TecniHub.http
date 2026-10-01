@@ -1,0 +1,6 @@
+@Backend_TecniHub_HostAddress = http://localhost:5144
+
+GET {{Backend_TecniHub_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

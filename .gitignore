@@ -1,0 +1,27 @@
+# Visual Studio
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Build
+bin/
+obj/
+
+# Logs
+*.log
+
+# User-specific files
+*.userosscache
+*.sln.docstates
+
+# NuGet
+packages/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Publish
+publish/

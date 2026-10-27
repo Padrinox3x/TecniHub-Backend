@@ -1,28 +1,20 @@
-using Microsoft.EntityFrameworkCore;
-using TecniHub.Infrastructure.Persistence;
+using TecniHub.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
-// Add services to the container.
 
 // TecniHub - despliegue CI/CD Prueba 2
 
-// Registrar DbContext con PostgreSQL
-builder.Services.AddDbContext<TecniHubDbContext>(options =>
-    options.UseNpgsql(connectionString));
+// 1. Registrar servicios de Infraestructura (DbContext Neon, Repositorios y Servicios de Seguridad)
+builder.Services.AddInfrastructureServices(builder.Configuration);
 
-// Registrar los demás servicios (Controllers, Swagger, etc.)
+// 2. Registrar servicios propios de la API
 builder.Services.AddControllers();
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configurar la tubería de peticiones HTTP (Middleware)
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -31,6 +23,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// El orden de los middlewares de seguridad es crítico
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

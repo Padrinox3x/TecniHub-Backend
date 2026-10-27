@@ -23,5 +23,12 @@ packages/
 .env.*
 !.env.example
 
+# ASP.NET Core Configs & Secrets (Conexión Neon)
+appsettings.Development.json
+appsettings.Production.json
+appsettings.Local.json
+appsettings.*.json
+!appsettings.json
+
 # Publish
 publish/

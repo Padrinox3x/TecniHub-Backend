@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TecniHub.Application\TecniHub.Application.csproj" />
+    <ProjectReference Include="..\TecniHub.Domain\TecniHub.Domain.csproj" />
   </ItemGroup>
 
 </Project>

@@ -25,9 +25,12 @@ public class ClienteRepository : IClienteRepository
             .AnyAsync(c => c.Correo.Valor == email, cancellationToken);
     }
 
-    public async Task AgregarClienteAsync(Cliente cliente, CancellationToken cancellationToken = default)
+
+    public async Task AgregarClienteAsync(
+        Cliente cliente,
+        CancellationToken cancellationToken = default)
     {
         await _context.Clientes.AddAsync(cliente, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
     }
+
 }

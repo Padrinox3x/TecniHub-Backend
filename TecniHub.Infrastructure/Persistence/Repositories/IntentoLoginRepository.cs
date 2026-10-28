@@ -1,4 +1,5 @@
-﻿using TecniHub.Application.Common.Interfaces;
+﻿
+using TecniHub.Application.Common.Interfaces;
 using TecniHub.Domain.Entities;
 
 namespace TecniHub.Infrastructure.Persistence.Repositories;
@@ -12,9 +13,12 @@ public class IntentoLoginRepository : IIntentoLoginRepository
         _context = context;
     }
 
-    public async Task RegistrarIntentoAsync(IntentoLogin intento, CancellationToken cancellationToken = default)
+    public async Task RegistrarIntentoAsync(
+        IntentoLogin intento,
+        CancellationToken cancellationToken = default)
     {
-        await _context.IntentosLogin.AddAsync(intento, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        await _context.IntentosLogin.AddAsync(
+            intento,
+            cancellationToken);
     }
 }

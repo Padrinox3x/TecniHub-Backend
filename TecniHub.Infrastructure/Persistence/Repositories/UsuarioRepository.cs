@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿
+using Microsoft.EntityFrameworkCore;
 using TecniHub.Application.Common.Interfaces;
 using TecniHub.Domain.Entities;
 
@@ -13,21 +14,32 @@ public class UsuarioRepository : IUsuarioRepository
         _context = context;
     }
 
-    public async Task<Usuario?> ObtenerPorEmailAsync(string email, CancellationToken cancellationToken = default)
+    public async Task<Usuario?> ObtenerPorEmailAsync(
+        string email,
+        CancellationToken cancellationToken = default)
     {
         return await _context.Usuarios
-            .FirstOrDefaultAsync(u => u.Correo == email, cancellationToken);
+            .FirstOrDefaultAsync(
+                u => u.Correo == email,
+                cancellationToken);
     }
 
-    public async Task<bool> ExisteEmailAsync(string email, CancellationToken cancellationToken = default)
+    public async Task<bool> ExisteEmailAsync(
+        string email,
+        CancellationToken cancellationToken = default)
     {
         return await _context.Usuarios
-            .AnyAsync(u => u.Correo == email, cancellationToken);
+            .AnyAsync(
+                u => u.Correo == email,
+                cancellationToken);
     }
 
-    public async Task AgregarUsuarioAsync(Usuario usuario, CancellationToken cancellationToken = default)
+    public async Task AgregarUsuarioAsync(
+        Usuario usuario,
+        CancellationToken cancellationToken = default)
     {
-        await _context.Usuarios.AddAsync(usuario, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        await _context.Usuarios.AddAsync(
+            usuario,
+            cancellationToken);
     }
 }

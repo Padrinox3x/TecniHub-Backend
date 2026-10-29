@@ -34,8 +34,8 @@ public class RegistroClienteService : IRegistroClienteService
     }
 
     public async Task<AuthResponseDto> RegistrarAsync(
-        RegistroClienteRequestDto request,
-        CancellationToken cancellationToken = default)
+    RegistroClienteRequestDto request,
+    CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -44,10 +44,12 @@ public class RegistroClienteService : IRegistroClienteService
             .Trim()
             .ToLowerInvariant();
 
-        if (await _usuarioRepository.ExisteEmailAsync(
-                email, cancellationToken)
-            || await _clienteRepository.ExisteEmailAsync(
-                email, cancellationToken))
+        var existeEnUsuarios = await _usuarioRepository.ExisteEmailAsync(
+            email, cancellationToken);
+
+        var existeEnClientes = await _clienteRepository.ExisteEmailAsync(
+            email, cancellationToken);
+        if (existeEnUsuarios || existeEnClientes)
         {
             throw new InvalidOperationException(
                 "No fue posible registrar la cuenta con ese correo.");

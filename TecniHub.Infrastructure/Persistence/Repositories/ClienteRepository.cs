@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TecniHub.Application.Common.Interfaces;
 using TecniHub.Domain.Entities;
+using TecniHub.Domain.ValueObjects;
 
 namespace TecniHub.Infrastructure.Persistence.Repositories;
 
@@ -15,16 +16,19 @@ public class ClienteRepository : IClienteRepository
 
     public async Task<Cliente?> ObtenerPorEmailAsync(string email, CancellationToken cancellationToken = default)
     {
+        var correoVo = new CorreoElectronico(email);
+
         return await _context.Clientes
-            .FirstOrDefaultAsync(c => c.Correo.Valor == email, cancellationToken);
+            .FirstOrDefaultAsync(c => c.Correo == correoVo, cancellationToken);
     }
 
     public async Task<bool> ExisteEmailAsync(string email, CancellationToken cancellationToken = default)
     {
-        return await _context.Clientes
-            .AnyAsync(c => c.Correo.Valor == email, cancellationToken);
-    }
+        var correoVo = new CorreoElectronico(email);
 
+        return await _context.Clientes
+            .AnyAsync(c => c.Correo == correoVo, cancellationToken);
+    }
 
     public async Task AgregarClienteAsync(
         Cliente cliente,
@@ -32,5 +36,4 @@ public class ClienteRepository : IClienteRepository
     {
         await _context.Clientes.AddAsync(cliente, cancellationToken);
     }
-
 }

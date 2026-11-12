@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using TecniHub.Application.Common.Interfaces;
 using TecniHub.Application.Services;
+using TecniHub.Domain.Services;
 using TecniHub.Infrastructure.Persistence;
 using TecniHub.Infrastructure.Persistence.Repositories;
 using TecniHub.Infrastructure.Security;
@@ -32,16 +33,22 @@ public static class DependencyInjection
 
         // 3. Repositorios
         services.AddScoped<IClienteRepository, ClienteRepository>();
+        services.AddScoped<ITecnicoRepository, TecnicoRepository>();
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();
         services.AddScoped<ISesionRepository, SesionRepository>();
         services.AddScoped<IIntentoLoginRepository, IntentoLoginRepository>();
-        services.AddScoped<ISprint3Repository, Sprint3Repository>();
+        services.AddScoped<IPublicacionServicioRepository, PublicacionServicioRepository>();
+        services.AddScoped<IPublicacionPiezaRepository, PublicacionPiezaRepository>();
 
         // 4. Unidad de trabajo
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-        // 5. Servicios de aplicación
+        // 5. Servicios de dominio
+        services.AddScoped<ReglasAsignacionService>();
+
+        // 6. Servicios de aplicación
         services.AddScoped<IRegistroClienteService, RegistroClienteService>();
+        services.AddScoped<IRegistroTecnicoService, RegistroTecnicoService>();
         services.AddScoped<ILoginService, LoginService>();
         services.AddScoped<ISprint3Service, Sprint3Service>();
 

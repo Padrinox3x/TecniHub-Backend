@@ -14,6 +14,12 @@ public class ClienteRepository : IClienteRepository
         _context = context;
     }
 
+    public async Task<Cliente?> ObtenerPorUsuarioIdAsync(int usuarioId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Clientes
+            .FirstOrDefaultAsync(c => c.UsuarioId == usuarioId, cancellationToken);
+    }
+
     public async Task<Cliente?> ObtenerPorEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         var correoVo = new CorreoElectronico(email);

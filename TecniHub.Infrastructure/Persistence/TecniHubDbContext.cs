@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TecniHub.Domain.Entities;
 using TecniHub.Domain.ValueObjects;
+using TecniHub.Infrastructure.Persistence.Configurations;
 
 namespace TecniHub.Infrastructure.Persistence
 {
@@ -18,9 +19,20 @@ namespace TecniHub.Infrastructure.Persistence
         public DbSet<Sesion> Sesiones => Set<Sesion>();
         public DbSet<IntentoLogin> IntentosLogin => Set<IntentoLogin>();
 
+        // Modelos de Sprint 3: se agregan sin cambiar los mapeos existentes de autenticación.
+        public DbSet<ServicioSprint3> ServiciosSprint3 => Set<ServicioSprint3>();
+        public DbSet<PiezaSprint3> PiezasSprint3 => Set<PiezaSprint3>();
+        public DbSet<CategoriaSprint3> CategoriasSprint3 => Set<CategoriaSprint3>();
+        public DbSet<ItinerarioSprint3> ItinerariosSprint3 => Set<ItinerarioSprint3>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.ApplyConfiguration(new ServicioSprint3Configuration());
+            modelBuilder.ApplyConfiguration(new PiezaSprint3Configuration());
+            modelBuilder.ApplyConfiguration(new CategoriaSprint3Configuration());
+            modelBuilder.ApplyConfiguration(new ItinerarioSprint3Configuration());
 
             // ==========================================
             // ESQUEMA: security

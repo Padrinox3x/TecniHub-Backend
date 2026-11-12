@@ -28,6 +28,12 @@ namespace TecniHub.Infrastructure.Persistence
         public DbSet<CategoriaSprint3> CategoriasSprint3 => Set<CategoriaSprint3>();
         public DbSet<ItinerarioSprint3> ItinerariosSprint3 => Set<ItinerarioSprint3>();
 
+        // Modelos de Sprint 3: se agregan sin cambiar los mapeos existentes de autenticación.
+        public DbSet<ServicioSprint3> ServiciosSprint3 => Set<ServicioSprint3>();
+        public DbSet<PiezaSprint3> PiezasSprint3 => Set<PiezaSprint3>();
+        public DbSet<CategoriaSprint3> CategoriasSprint3 => Set<CategoriaSprint3>();
+        public DbSet<ItinerarioSprint3> ItinerariosSprint3 => Set<ItinerarioSprint3>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

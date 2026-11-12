@@ -21,7 +21,13 @@ public static class DependencyInjection
     {
         // 1. DbContext - PostgreSQL
         var connectionString =
-            configuration.GetConnectionString("DefaultConnection");
+     configuration.GetConnectionString("DefaultConnection");
+
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            throw new InvalidOperationException(
+                "No se ha configurado ConnectionStrings:DefaultConnection.");
+        }
 
         services.AddDbContext<TecniHubDbContext>(options =>
             options.UseNpgsql(connectionString));
@@ -49,7 +55,7 @@ public static class DependencyInjection
         if (string.IsNullOrWhiteSpace(jwtKey))
         {
             throw new InvalidOperationException(
-                "No se ha configurado Jwt:Key.");
+                "No se ha configurado JwtSettings:SecretKey.");
         }
 
         services

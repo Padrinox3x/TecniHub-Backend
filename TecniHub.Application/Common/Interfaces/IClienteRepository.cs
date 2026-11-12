@@ -9,6 +9,7 @@ namespace TecniHub.Application.Common.Interfaces;
 
 public interface IClienteRepository
 {
+    Task<Cliente?> ObtenerPorUsuarioIdAsync(int usuarioId, CancellationToken cancellationToken = default);
     Task<Cliente?> ObtenerPorEmailAsync(string email, CancellationToken cancellationToken = default);
     Task<bool> ExisteEmailAsync(string email, CancellationToken cancellationToken = default);
     Task AgregarClienteAsync(Cliente cliente, CancellationToken cancellationToken = default);

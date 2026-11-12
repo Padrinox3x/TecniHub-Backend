@@ -18,6 +18,9 @@ public class Usuario
     public ICollection<Cliente> Clientes { get; private set; }
         = new List<Cliente>();
 
+    public ICollection<Tecnico> Tecnicos { get; private set; }
+        = new List<Tecnico>();
+
     private Usuario() { }
 
     public Usuario(string correo, string contrasenaHash, string rol)

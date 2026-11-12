@@ -14,6 +14,16 @@ public class UsuarioRepository : IUsuarioRepository
         _context = context;
     }
 
+    public async Task<Usuario?> ObtenerPorIdAsync(
+        int id,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Usuarios
+            .FirstOrDefaultAsync(
+                u => u.Id == id,
+                cancellationToken);
+    }
+
     public async Task<Usuario?> ObtenerPorEmailAsync(
         string email,
         CancellationToken cancellationToken = default)

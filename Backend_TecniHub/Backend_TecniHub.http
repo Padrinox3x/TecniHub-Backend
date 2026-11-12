@@ -1,6 +1,86 @@
 @Backend_TecniHub_HostAddress = http://localhost:5144
+@token = eyJhbGciOi...
 
-GET {{Backend_TecniHub_HostAddress}}/weatherforecast/
-Accept: application/json
+### Registro de Cliente
+POST {{Backend_TecniHub_HostAddress}}/api/auth/registro
+Content-Type: application/json
 
-###
+{
+  "nombre": "Juan",
+  "apellidos": "Pérez González",
+  "email": "juan.perez@example.com",
+  "contrasena": "Password123!",
+  "telefono": "5512345678",
+  "direccion": "Av. Insurgentes Sur 123"
+}
+
+### Registro de Técnico
+POST {{Backend_TecniHub_HostAddress}}/api/auth/registro-tecnico
+Content-Type: application/json
+
+{
+  "nombreCompleto": "Carlos Mendoza",
+  "email": "carlos.tecnico@example.com",
+  "contrasena": "Password123!",
+  "telefono": "5598765432",
+  "tieneNegocioFisico": true,
+  "telefonoNegocio": "5544332211",
+  "ubicacionEstablecimiento": "Calle Reforma 456, Local 3",
+  "fotoIdentificacion": "https://example.com/identificacion.jpg",
+  "redesSociales": "https://instagram.com/tecnicocarlos",
+  "costoCotizacion": 250.00,
+  "evidenciaTrabajos": "https://example.com/portafolio"
+}
+
+### Inicio de Sesión
+POST {{Backend_TecniHub_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "carlos.tecnico@example.com",
+  "contrasena": "Password123!"
+}
+
+### Obtener Perfil del Usuario Autenticado
+GET {{Backend_TecniHub_HostAddress}}/api/perfil
+Authorization: Bearer {{token}}
+
+### Editar Perfil (Genérico - según el rol del usuario)
+PUT {{Backend_TecniHub_HostAddress}}/api/perfil
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombreCompleto": "Carlos Mendoza Editado",
+  "telefono": "5511223344",
+  "costoCotizacion": 300.00
+}
+
+### Editar Perfil de Cliente
+PUT {{Backend_TecniHub_HostAddress}}/api/perfil/cliente
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombre": "Juan Carlos",
+  "apellidos": "Pérez González",
+  "telefono": "5599887766",
+  "direccion": "Calle Nueva 789, Depto 4"
+}
+
+### Editar Perfil de Técnico
+PUT {{Backend_TecniHub_HostAddress}}/api/perfil/tecnico
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombreCompleto": "Carlos Mendoza Ramos",
+  "telefono": "5598765432",
+  "tieneNegocioFisico": true,
+  "telefonoNegocio": "5544332211",
+  "ubicacionEstablecimiento": "Av. Insurgentes 789, Local 12",
+  "fotoIdentificacion": "https://example.com/foto_nueva.jpg",
+  "redesSociales": "https://instagram.com/tecnicocarlos",
+  "costoCotizacion": 350.00,
+  "evidenciaTrabajos": "https://example.com/portafolio_nuevo"
+}

@@ -35,6 +35,7 @@ public static class DependencyInjection
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();
         services.AddScoped<ISesionRepository, SesionRepository>();
         services.AddScoped<IIntentoLoginRepository, IntentoLoginRepository>();
+        services.AddScoped<ISprint3Repository, Sprint3Repository>();
 
         // 4. Unidad de trabajo
         services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -42,6 +43,7 @@ public static class DependencyInjection
         // 5. Servicios de aplicación
         services.AddScoped<IRegistroClienteService, RegistroClienteService>();
         services.AddScoped<ILoginService, LoginService>();
+        services.AddScoped<ISprint3Service, Sprint3Service>();
 
         // 6. Autenticación JWT
         var jwtKey = configuration["JwtSettings:SecretKey"];

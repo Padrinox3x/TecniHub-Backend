@@ -70,6 +70,29 @@ public class Cliente
     }
 
 
+    public void ActualizarPerfil(
+        string nombre,
+        string apellidos,
+        NumeroTelefono numeroTelefono,
+        string? direccion)
+    {
+        if (string.IsNullOrWhiteSpace(nombre))
+            throw new ReglaNegocioInvalidaException(
+                "El nombre del cliente es requerido.");
+
+        if (string.IsNullOrWhiteSpace(apellidos))
+            throw new ReglaNegocioInvalidaException(
+                "Los apellidos del cliente son requeridos.");
+
+        Nombre = nombre.Trim();
+        Apellidos = apellidos.Trim();
+        NumeroTelefono = numeroTelefono
+            ?? throw new ArgumentNullException(nameof(numeroTelefono));
+        Direccion = string.IsNullOrWhiteSpace(direccion)
+            ? null
+            : direccion.Trim();
+    }
+
     public void ActualizarDatosDeContacto(
         string? numeroTelefono,
         string? direccion)

@@ -199,6 +199,76 @@ namespace TecniHub.Infrastructure.Migrations
                     b.ToTable("sesiones", "security");
                 });
 
+            modelBuilder.Entity("TecniHub.Domain.Entities.Tecnico", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Contrasena")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("password_hash");
+
+                    b.Property<string>("Correo")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("email");
+
+                    b.Property<decimal?>("CostoCotizacion")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("costo_cotizacion");
+
+                    b.Property<string>("EvidenciaTrabajos")
+                        .HasColumnType("text")
+                        .HasColumnName("evidencia_trabajos");
+
+                    b.Property<string>("FotoIdentificacion")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("foto_identificacion");
+
+                    b.Property<string>("NombreCompleto")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("nombre_completo");
+
+                    b.Property<string>("RedesSociales")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("redes_sociales");
+
+                    b.Property<string>("Rol")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("rol");
+
+                    b.Property<bool>("TieneNegocioFisico")
+                        .HasColumnType("boolean")
+                        .HasColumnName("tiene_negocio_fisico");
+
+                    b.Property<string>("UbicacionEstablecimiento")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("ubicacion_establecimiento");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("tecnicos", "core");
+                });
+
             modelBuilder.Entity("TecniHub.Domain.Entities.Usuario", b =>
                 {
                     b.Property<int>("Id")
@@ -295,6 +365,60 @@ namespace TecniHub.Infrastructure.Migrations
                     b.Navigation("Usuario");
                 });
 
+            modelBuilder.Entity("TecniHub.Domain.Entities.Tecnico", b =>
+                {
+                    b.HasOne("TecniHub.Domain.Entities.Usuario", "Usuario")
+                        .WithMany("Tecnicos")
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsOne("TecniHub.Domain.ValueObjects.NumeroTelefono", "NumeroTelefono", b1 =>
+                        {
+                            b1.Property<int>("TecnicoId")
+                                .HasColumnType("integer");
+
+                            b1.Property<string>("Valor")
+                                .IsRequired()
+                                .HasMaxLength(20)
+                                .HasColumnType("character varying(20)")
+                                .HasColumnName("numero_telefono");
+
+                            b1.HasKey("TecnicoId");
+
+                            b1.ToTable("tecnicos", "core");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TecnicoId");
+                        });
+
+                    b.OwnsOne("TecniHub.Domain.ValueObjects.NumeroTelefono", "TelefonoNegocio", b1 =>
+                        {
+                            b1.Property<int>("TecnicoId")
+                                .HasColumnType("integer");
+
+                            b1.Property<string>("Valor")
+                                .IsRequired()
+                                .HasMaxLength(20)
+                                .HasColumnType("character varying(20)")
+                                .HasColumnName("telefono_negocio");
+
+                            b1.HasKey("TecnicoId");
+
+                            b1.ToTable("tecnicos", "core");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TecnicoId");
+                        });
+
+                    b.Navigation("NumeroTelefono")
+                        .IsRequired();
+
+                    b.Navigation("TelefonoNegocio");
+
+                    b.Navigation("Usuario");
+                });
+
             modelBuilder.Entity("TecniHub.Domain.Entities.Usuario", b =>
                 {
                     b.HasOne("TecniHub.Domain.Entities.Rol", null)
@@ -310,6 +434,8 @@ namespace TecniHub.Infrastructure.Migrations
             modelBuilder.Entity("TecniHub.Domain.Entities.Usuario", b =>
                 {
                     b.Navigation("Clientes");
+
+                    b.Navigation("Tecnicos");
                 });
 #pragma warning restore 612, 618
         }

@@ -15,6 +15,10 @@ public class RegistroTecnicoTests
 
         public Task AgregarUsuarioAsync(Usuario usuario, CancellationToken cancellationToken = default)
         {
+            if (usuario.Id == 0)
+            {
+                typeof(Usuario).GetProperty("Id")?.SetValue(usuario, _usuarios.Count + 1);
+            }
             _usuarios.Add(usuario);
             return Task.CompletedTask;
         }
@@ -27,6 +31,11 @@ public class RegistroTecnicoTests
         public Task<Usuario?> ObtenerPorEmailAsync(string email, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(_usuarios.FirstOrDefault(u => u.Correo == email.Trim().ToLowerInvariant()));
+        }
+
+        public Task<Usuario?> ObtenerPorIdAsync(int id, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(_usuarios.FirstOrDefault(u => u.Id == id));
         }
     }
 
@@ -49,6 +58,11 @@ public class RegistroTecnicoTests
         {
             return Task.FromResult(_tecnicos.FirstOrDefault(t => t.Correo.Valor == email.Trim().ToLowerInvariant()));
         }
+
+        public Task<Tecnico?> ObtenerPorUsuarioIdAsync(int usuarioId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(_tecnicos.FirstOrDefault(t => t.UsuarioId == usuarioId));
+        }
     }
 
     private class FakeClienteRepository : IClienteRepository
@@ -56,6 +70,7 @@ public class RegistroTecnicoTests
         public Task AgregarClienteAsync(Cliente cliente, CancellationToken cancellationToken = default) => Task.CompletedTask;
         public Task<bool> ExisteEmailAsync(string email, CancellationToken cancellationToken = default) => Task.FromResult(false);
         public Task<Cliente?> ObtenerPorEmailAsync(string email, CancellationToken cancellationToken = default) => Task.FromResult<Cliente?>(null);
+        public Task<Cliente?> ObtenerPorUsuarioIdAsync(int usuarioId, CancellationToken cancellationToken = default) => Task.FromResult<Cliente?>(null);
     }
 
     private class FakePasswordHasher : IPasswordHasher

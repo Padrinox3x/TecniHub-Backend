@@ -13,10 +13,14 @@ namespace Backend_TecniHub.Controllers;
 public class PerfilController : ControllerBase
 {
     private readonly IPerfilService _perfilService;
+    private readonly IPerfilPublicoService _perfilPublicoService;
 
-    public PerfilController(IPerfilService perfilService)
+    public PerfilController(
+        IPerfilService perfilService,
+        IPerfilPublicoService perfilPublicoService)
     {
         _perfilService = perfilService;
+        _perfilPublicoService = perfilPublicoService;
     }
 
     [HttpGet]
@@ -147,6 +151,69 @@ public class PerfilController : ControllerBase
         {
             return BadRequest(new { mensaje = ex.Message });
         }
+    }
+
+    /// <summary>
+    /// HU-012: Visualizar el perfil público de un técnico, incluyendo calificación de hasta 5 estrellas, reputación y reseñas de trabajos anteriores.
+    /// </summary>
+    [HttpGet("tecnico/publico/{id:int}")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(PerfilPublicoTecnicoDto), StatusCodes.Status200OK)]
+    public async Task<ActionResult<PerfilPublicoTecnicoDto>> ObtenerPerfilPublicoTecnico(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        var perfilPublico = await _perfilPublicoService.ObtenerPerfilPublicoTecnicoAsync(id, cancellationToken);
+        return Ok(perfilPublico);
+    }
+
+    /// <summary>
+    /// HU-012: Emisión de una reseña con calificación (1 a 5 estrellas) para un servicio completado.
+    /// </summary>
+    [HttpPost("tecnico/{id:int}/resenas")]
+    [Authorize]
+    [ProducesResponseType(typeof(ResenaTecnicoDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ResenaTecnicoDto>> AgregarResena(
+        int id,
+        [FromBody] CrearResenaRequestDto request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var usuarioId = ObtenerUsuarioIdActual();
+            var resena = await _perfilPublicoService.AgregarResenaAsync(id, request, usuarioId, cancellationToken);
+            return StatusCode(StatusCodes.Status201Created, resena);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensaje = ex.Message });
+        }
+        catch (DomainException ex)
+        {
+            return BadRequest(new { mensaje = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { mensaje = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// HU-013: Visualizar el perfil público básico de un cliente (nombre de pila, zona general y estadística de servicios).
+    /// Requiere sesión activa para proteger la identidad del cliente (visitantes externos reciben 401).
+    /// </summary>
+    [HttpGet("cliente/publico/{id:int}")]
+    [Authorize]
+    [ProducesResponseType(typeof(PerfilPublicoClienteDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<PerfilPublicoClienteDto>> ObtenerPerfilPublicoCliente(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        var perfilPublico = await _perfilPublicoService.ObtenerPerfilPublicoClienteAsync(id, cancellationToken);
+        return Ok(perfilPublico);
     }
 
     private int? ObtenerUsuarioIdActual()

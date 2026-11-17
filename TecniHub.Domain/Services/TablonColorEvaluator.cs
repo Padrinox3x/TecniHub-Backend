@@ -24,12 +24,12 @@ public static class TablonColorEvaluator
                 EsCompletado: true,
                 TextoIndicador: "Completado..."),
 
-            "ENPROCESO" or "EN_PROCESO" or "ACEPTADO" => new InformacionVisualColor(
+            "ENPROCESO" or "EN_PROCESO" or "ACEPTADO" or "PENDIENTECIERRE" or "PENDIENTE_CIERRE" or "PENDIENTECONFIRMACION" => new InformacionVisualColor(
                 CodigoColor: "Verde",
                 ClaseCssBorde: "border-green-500",
                 ColorHex: "#22C55E",
                 EsCompletado: false,
-                TextoIndicador: null),
+                TextoIndicador: estado.Contains("CIERRE") || estado.Contains("CONFIRMACION") ? "Pendiente de confirmación" : null),
 
             _ => new InformacionVisualColor(
                 CodigoColor: "Rojo",

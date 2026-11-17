@@ -65,12 +65,25 @@ public class PublicacionServicio
     public void FinalizarServicio()
     {
         if (!string.Equals(Estado, "EnProceso", StringComparison.OrdinalIgnoreCase) &&
-            !string.Equals(Estado, "Aceptado", StringComparison.OrdinalIgnoreCase))
+            !string.Equals(Estado, "Aceptado", StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(Estado, "PendienteCierre", StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(Estado, "PendienteConfirmacion", StringComparison.OrdinalIgnoreCase))
         {
             throw new ReglaNegocioInvalidaException("Solo se pueden finalizar servicios que se encuentren en proceso.");
         }
 
         Estado = "Completado";
+    }
+
+    public void SolicitarCierre()
+    {
+        if (!string.Equals(Estado, "EnProceso", StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(Estado, "Aceptado", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ReglaNegocioInvalidaException("Solo se puede solicitar el cierre de un servicio que esté en proceso.");
+        }
+
+        Estado = "PendienteCierre";
     }
 
     public void AsignarImagenReferencia(string rutaImagen)

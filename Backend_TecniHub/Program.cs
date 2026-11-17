@@ -1,4 +1,4 @@
-ï»¿using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi.Models;
 using TecniHub.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);

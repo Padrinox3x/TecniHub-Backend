@@ -1,4 +1,4 @@
-﻿using Microsoft.OpenApi.Models;
+ï»¿using Microsoft.OpenApi.Models;
 using TecniHub.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,7 +15,7 @@ builder.Services.AddSwaggerGen(options =>
     {
         Title = "TecniHub API",
         Version = "v1",
-        Description = "API de TecniHub para gestión de servicios técnicos, refacciones y perfiles"
+        Description = "API de TecniHub para gestiÃ³n de servicios tÃ©cnicos, refacciones y perfiles"
     });
 
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -44,9 +44,21 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+// Permitir solicitudes desde Angular
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AngularFrontend", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:4200")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
-// Configurar la tubería de peticiones HTTP (Middleware)
+// Configurar la tuberÃ­a de peticiones HTTP (Middleware)
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -55,7 +67,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// El orden de los middlewares de seguridad es crítico
+// El orden de los middlewares de seguridad es crÃ­tico
 app.UseAuthentication();
 app.UseAuthorization();
 

@@ -75,6 +75,19 @@ public class PerfilesPublicosHU012HU013Tests
             _tecnicos.Add(tecnico);
             return Task.CompletedTask;
         }
+
+        public Task<Tecnico?> ObtenerPorIdAsync(int tecnicoId, CancellationToken cancellationToken = default)
+        {
+            var tec = _tecnicos.FirstOrDefault(t => t.Id == tecnicoId || t.UsuarioId == tecnicoId);
+            if (tec == null)
+            {
+                var usuario = new Usuario($"tecnico{tecnicoId}@ejemplo.com", "hash", "TECNICO");
+                typeof(Usuario).GetProperty("Id")?.SetValue(usuario, tecnicoId);
+                tec = new Tecnico(usuario, $"Técnico #{tecnicoId}", new CorreoElectronico($"tecnico{tecnicoId}@ejemplo.com"), "hash", new NumeroTelefono("7731234567"));
+                typeof(Tecnico).GetProperty("Id")?.SetValue(tec, tecnicoId);
+            }
+            return Task.FromResult<Tecnico?>(tec);
+        }
     }
 
     // ==========================================

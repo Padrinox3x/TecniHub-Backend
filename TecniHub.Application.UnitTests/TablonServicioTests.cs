@@ -109,6 +109,9 @@ public class TablonServicioTests
             _tecnicos.Add(tecnico);
             return Task.CompletedTask;
         }
+
+        public Task<Tecnico?> ObtenerPorIdAsync(int tecnicoId, CancellationToken cancellationToken = default) =>
+            Task.FromResult(_tecnicos.FirstOrDefault(t => t.Id == tecnicoId || t.UsuarioId == tecnicoId));
     }
 
     private class FakeUsuarioRepository : IUsuarioRepository

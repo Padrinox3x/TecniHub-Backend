@@ -8,6 +8,10 @@ public interface ITecnicoRepository
         int usuarioId,
         CancellationToken cancellationToken = default);
 
+    Task<Tecnico?> ObtenerPorIdAsync(
+        int tecnicoId,
+        CancellationToken cancellationToken = default);
+
     Task<Tecnico?> ObtenerPorEmailAsync(
         string email,
         CancellationToken cancellationToken = default);

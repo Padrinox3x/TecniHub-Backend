@@ -67,7 +67,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// El orden de los middlewares de seguridad es crÃ­tico
+// Aplicar política CORS para Angular
+app.UseCors("AngularFrontend");
+
+// Middleware de seguridad
 app.UseAuthentication();
 app.UseAuthorization();
 

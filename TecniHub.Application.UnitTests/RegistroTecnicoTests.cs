@@ -59,6 +59,9 @@ public class RegistroTecnicoTests
             return Task.FromResult(_tecnicos.FirstOrDefault(t => t.Correo.Valor == email.Trim().ToLowerInvariant()));
         }
 
+        public Task<Tecnico?> ObtenerPorIdAsync(int tecnicoId, CancellationToken cancellationToken = default) =>
+            Task.FromResult(_tecnicos.FirstOrDefault(t => t.Id == tecnicoId || t.UsuarioId == tecnicoId));
+
         public Task<Tecnico?> ObtenerPorUsuarioIdAsync(int usuarioId, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(_tecnicos.FirstOrDefault(t => t.UsuarioId == usuarioId));

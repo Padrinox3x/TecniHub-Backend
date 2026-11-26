@@ -1,3 +1,17 @@
+using System.Net;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Security.Claims;
+using System.Text.Encodings.Web;
+using Backend_TecniHub;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using TecniHub.Application.Common.Interfaces;
 using TecniHub.Application.DTOs.Perfil;
 using TecniHub.Application.Services;
@@ -39,6 +53,9 @@ public class PerfilesPublicosHU012HU013Tests
 
         public void Agregar(Cliente c) => _clientes.Add(c);
 
+        public Task<Cliente?> ObtenerPorIdAsync(int id, CancellationToken cancellationToken = default) =>
+            Task.FromResult(_clientes.FirstOrDefault(c => c.Id == id));
+
         public Task<Cliente?> ObtenerPorUsuarioIdAsync(int usuarioId, CancellationToken cancellationToken = default) =>
             Task.FromResult(_clientes.FirstOrDefault(c => c.UsuarioId == usuarioId));
 
@@ -74,19 +91,6 @@ public class PerfilesPublicosHU012HU013Tests
         {
             _tecnicos.Add(tecnico);
             return Task.CompletedTask;
-        }
-
-        public Task<Tecnico?> ObtenerPorIdAsync(int tecnicoId, CancellationToken cancellationToken = default)
-        {
-            var tec = _tecnicos.FirstOrDefault(t => t.Id == tecnicoId || t.UsuarioId == tecnicoId);
-            if (tec == null)
-            {
-                var usuario = new Usuario($"tecnico{tecnicoId}@ejemplo.com", "hash", "TECNICO");
-                typeof(Usuario).GetProperty("Id")?.SetValue(usuario, tecnicoId);
-                tec = new Tecnico(usuario, $"Técnico #{tecnicoId}", new CorreoElectronico($"tecnico{tecnicoId}@ejemplo.com"), "hash", new NumeroTelefono("7731234567"));
-                typeof(Tecnico).GetProperty("Id")?.SetValue(tec, tecnicoId);
-            }
-            return Task.FromResult<Tecnico?>(tec);
         }
     }
 
@@ -204,5 +208,194 @@ public class PerfilesPublicosHU012HU013Tests
         Assert.Equal(3, perfil.ServiciosSolicitados);
         Assert.Equal(1, perfil.ServiciosCompletados);
         Assert.True(perfil.EsUsuarioFrecuente);
+    }
+
+    [Fact]
+    public async Task HU013_PerfilCliente_ResuelvePorClienteIdAunqueDifieraDeUsuarioId()
+    {
+        var tecnicoRepo = new FakeTecnicoRepository();
+        var servicioRepo = new FakePublicacionServicioRepository();
+        var clienteRepo = new FakeClienteRepository();
+
+        var usuario = new Usuario("cliente6@ejemplo.com", "hash", "CLIENTE");
+        typeof(Usuario).GetProperty("Id")?.SetValue(usuario, 15);
+
+        var cliente = new Cliente(
+            usuario: usuario,
+            nombre: "María",
+            apellidos: "López García",
+            correo: new CorreoElectronico("cliente6@ejemplo.com"),
+            contrasenaHash: "hash",
+            numeroTelefono: new NumeroTelefono("7731234567"),
+            direccion: "Av. Hidalgo 10, Pachuca, Hidalgo"
+        );
+        typeof(Cliente).GetProperty("Id")?.SetValue(cliente, 6);
+        clienteRepo.Agregar(cliente);
+
+        var srv1 = new PublicacionServicio(6, "Lavadora", "No drena", "Pachuca");
+        srv1.AceptarPorTecnico(1);
+        srv1.FinalizarServicio();
+        await servicioRepo.AgregarAsync(srv1);
+
+        var service = new PerfilPublicoService(tecnicoRepo, clienteRepo, servicioRepo);
+
+        var perfil = await service.ObtenerPerfilPublicoClienteAsync(6);
+
+        Assert.NotNull(perfil);
+        Assert.Equal(6, perfil.Id);
+        Assert.Equal("María L.", perfil.NombrePublico);
+        Assert.Equal("Pachuca, Hidalgo", perfil.ZonaAproximada);
+        Assert.Equal(1, perfil.ServiciosSolicitados);
+        Assert.Equal(1, perfil.ServiciosCompletados);
+        Assert.Equal("100%", perfil.PorcentajeInteraccionesExitosas);
+    }
+
+    [Fact]
+    public async Task HU013_PerfilCliente_Inexistente_LanzaKeyNotFoundException()
+    {
+        var service = new PerfilPublicoService(
+            new FakeTecnicoRepository(),
+            new FakeClienteRepository(),
+            new FakePublicacionServicioRepository());
+
+        await Assert.ThrowsAsync<KeyNotFoundException>(() =>
+            service.ObtenerPerfilPublicoClienteAsync(999));
+    }
+
+    [Theory]
+    [InlineData("/api/cliente/publico/6")]
+    [InlineData("/api/Perfil/cliente/publico/6")]
+    public async Task HU013_EndpointsClientePublico_Retornan200YCabecerasCors(string url)
+    {
+        var fakeService = new StubPerfilPublicoService(id =>
+            id == 6
+                ? new PerfilPublicoClienteDto(6, "María L.", "Pachuca, Hidalgo", "Noviembre 2026", 1, 1, "100%", false)
+                : throw new KeyNotFoundException($"No se encontró el cliente con ID {id}."));
+
+        using var factory = CrearFactoryConServicio(fakeService);
+        using var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Add("Origin", "http://localhost:4200");
+
+        var response = await client.GetAsync(url);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.True(response.Headers.TryGetValues("Access-Control-Allow-Origin", out var corsValues));
+        Assert.Contains("http://localhost:4200", corsValues);
+
+        var dto = await response.Content.ReadFromJsonAsync<PerfilPublicoClienteDto>();
+        Assert.NotNull(dto);
+        Assert.Equal(6, dto!.Id);
+        Assert.Equal("María L.", dto.NombrePublico);
+    }
+
+    [Theory]
+    [InlineData("/api/cliente/publico/999")]
+    [InlineData("/api/Perfil/cliente/publico/999")]
+    public async Task HU013_EndpointsClientePublico_Inexistente_Retornan404ConCors(string url)
+    {
+        var fakeService = new StubPerfilPublicoService(id =>
+            throw new KeyNotFoundException($"No se encontró el cliente con ID {id}."));
+
+        using var factory = CrearFactoryConServicio(fakeService);
+        using var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Add("Origin", "http://localhost:4200");
+
+        var response = await client.GetAsync(url);
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.True(response.Headers.TryGetValues("Access-Control-Allow-Origin", out var corsValues));
+        Assert.Contains("http://localhost:4200", corsValues);
+    }
+
+    [Fact]
+    public async Task GlobalExceptionHandler_ExcepcionNoControlada_ConservaCabecerasCors()
+    {
+        var fakeService = new StubPerfilPublicoService(_ =>
+            throw new InvalidOperationException("Fallo simulado"));
+
+        using var factory = CrearFactoryConServicio(fakeService);
+        using var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Add("Origin", "http://localhost:4200");
+
+        var response = await client.GetAsync("/api/cliente/publico/6");
+
+        Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        Assert.True(response.Headers.TryGetValues("Access-Control-Allow-Origin", out var corsValues));
+        Assert.Contains("http://localhost:4200", corsValues);
+    }
+
+    private static WebApplicationFactory<TestHostMarker> CrearFactoryConServicio(IPerfilPublicoService perfilService)
+    {
+        return new WebApplicationFactory<TestHostMarker>().WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureAppConfiguration((_, config) =>
+            {
+                config.AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    ["ConnectionStrings:DefaultConnection"] = "Host=localhost;Database=tecnihub_test;Username=postgres;Password=postgres",
+                    ["JwtSettings:SecretKey"] = "clave-super-secreta-para-pruebas-unitarias-1234567890",
+                    ["JwtSettings:Issuer"] = "TecniHubApi",
+                    ["JwtSettings:Audience"] = "TecniHubClient"
+                });
+            });
+
+            builder.ConfigureServices(services =>
+            {
+                services.RemoveAll<IPerfilPublicoService>();
+                services.AddSingleton(perfilService);
+
+                services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = "TestAuth";
+                    options.DefaultChallengeScheme = "TestAuth";
+                }).AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("TestAuth", _ => { });
+            });
+        });
+    }
+
+    private sealed class StubPerfilPublicoService : IPerfilPublicoService
+    {
+        private readonly Func<int, PerfilPublicoClienteDto> _clienteHandler;
+
+        public StubPerfilPublicoService(Func<int, PerfilPublicoClienteDto> clienteHandler)
+        {
+            _clienteHandler = clienteHandler;
+        }
+
+        public Task<PerfilPublicoTecnicoDto> ObtenerPerfilPublicoTecnicoAsync(int tecnicoId, CancellationToken cancellationToken = default)
+            => throw new NotImplementedException();
+
+        public Task<PerfilPublicoClienteDto> ObtenerPerfilPublicoClienteAsync(int clienteId, CancellationToken cancellationToken = default)
+            => Task.FromResult(_clienteHandler(clienteId));
+
+        public Task<ResenaTecnicoDto> AgregarResenaAsync(int tecnicoId, CrearResenaRequestDto request, int? clienteUsuarioId = null, CancellationToken cancellationToken = default)
+            => throw new NotImplementedException();
+
+        public Task<ResenaTecnicoDto?> ObtenerResenaPorServicioIdAsync(int servicioId, CancellationToken cancellationToken = default)
+            => throw new NotImplementedException();
+
+        public Task<IReadOnlyList<ResenaTecnicoDto>> ObtenerResenasPorTecnicoIdAsync(int tecnicoId, CancellationToken cancellationToken = default)
+            => throw new NotImplementedException();
+    }
+
+    private sealed class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+    {
+        public TestAuthHandler(
+            IOptionsMonitor<AuthenticationSchemeOptions> options,
+            ILoggerFactory logger,
+            UrlEncoder encoder)
+            : base(options, logger, encoder)
+        {
+        }
+
+        protected override Task<AuthenticateResult> HandleAuthenticateAsync()
+        {
+            var identity = new ClaimsIdentity(
+                new[] { new Claim(ClaimTypes.NameIdentifier, "1") },
+                "TestAuth");
+            var principal = new ClaimsPrincipal(identity);
+            var ticket = new AuthenticationTicket(principal, "TestAuth");
+            return Task.FromResult(AuthenticateResult.Success(ticket));
+        }
     }
 }

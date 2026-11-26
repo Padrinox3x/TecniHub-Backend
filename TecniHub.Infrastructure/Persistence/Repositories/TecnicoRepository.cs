@@ -24,16 +24,6 @@ public class TecnicoRepository : ITecnicoRepository
                 cancellationToken);
     }
 
-    public async Task<Tecnico?> ObtenerPorIdAsync(
-    int tecnicoId,
-    CancellationToken cancellationToken = default)
-    {
-        return await _context.Tecnicos
-            .FirstOrDefaultAsync(
-                t => t.Id == tecnicoId,
-                cancellationToken);
-    }
-
     public async Task<Tecnico?> ObtenerPorEmailAsync(
         string email,
         CancellationToken cancellationToken = default)

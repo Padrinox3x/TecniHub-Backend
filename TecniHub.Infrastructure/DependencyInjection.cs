@@ -56,12 +56,12 @@ public static class DependencyInjection
         services.AddScoped<IRegistroClienteService, RegistroClienteService>();
         services.AddScoped<IRegistroTecnicoService, RegistroTecnicoService>();
         services.AddScoped<ILoginService, LoginService>();
-        services.AddScoped<IPerfilService, PerfilService>();
         services.AddScoped<IServicioService, ServicioService>();
         services.AddScoped<IPiezaService, PiezaService>();
         services.AddScoped<IItinerarioService, ItinerarioService>();
         services.AddScoped<IChatService, ChatService>();
         services.AddScoped<INotificacionPushService, NotificacionPushService>();
+        services.AddScoped<IPerfilService, PerfilService>();
         services.AddScoped<IPerfilPublicoService, PerfilPublicoService>();
         services.AddScoped<ITablonService, TablonService>();
 

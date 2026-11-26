@@ -24,12 +24,20 @@ public sealed class ClientePublicoController : ControllerBase
     [Authorize]
     [ProducesResponseType(typeof(PerfilPublicoClienteDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PerfilPublicoClienteDto>> ObtenerPerfilPublico(
         int id,
         CancellationToken cancellationToken)
     {
-        var perfil = await _perfilPublicoService.ObtenerPerfilPublicoClienteAsync(id, cancellationToken);
-        return Ok(perfil);
+        try
+        {
+            var perfil = await _perfilPublicoService.ObtenerPerfilPublicoClienteAsync(id, cancellationToken);
+            return Ok(perfil);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensaje = ex.Message });
+        }
     }
 }
 

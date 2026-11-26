@@ -19,4 +19,16 @@ public interface IPublicacionServicioRepository
     Task AgregarAsync(
         PublicacionServicio publicacion,
         CancellationToken cancellationToken = default);
+
+    async Task<(int TotalSolicitados, int TotalCompletados)> ObtenerEstadisticasClienteAsync(
+        int clienteId,
+        CancellationToken cancellationToken = default)
+    {
+        var servicios = await ObtenerPorClienteIdAsync(clienteId, cancellationToken);
+        var completados = servicios.Count(s =>
+            string.Equals(s.Estado, "Completado", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(s.Estado, "Finalizado", StringComparison.OrdinalIgnoreCase));
+
+        return (servicios.Count, completados);
+    }
 }

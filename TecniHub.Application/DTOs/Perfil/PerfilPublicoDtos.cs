@@ -43,3 +43,12 @@ public sealed record PerfilPublicoClienteDto(
     string PorcentajeInteraccionesExitosas,
     bool EsUsuarioFrecuente
 );
+
+public sealed record ClientePerfilPublicoData(
+    int Id,
+    int UsuarioId,
+    string Nombre,
+    string Apellidos,
+    string? Direccion,
+    DateTime? FechaUltimoAcceso
+);

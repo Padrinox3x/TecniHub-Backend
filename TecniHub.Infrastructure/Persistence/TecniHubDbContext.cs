@@ -125,6 +125,11 @@ namespace TecniHub.Infrastructure.Persistence
                        .HasColumnName("rol")
                        .HasMaxLength(20)
                        .IsRequired();
+
+                builder.HasOne(c => c.Usuario)
+                       .WithMany(u => u.Clientes)
+                       .HasForeignKey(c => c.UsuarioId)
+                       .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Tecnico>(builder =>

@@ -78,9 +78,6 @@ public class ChatInternoHU011Tests
             Task.FromResult(false);
         public Task AgregarTecnicoAsync(Tecnico tecnico, CancellationToken cancellationToken = default) =>
             Task.CompletedTask;
-
-        public Task<Tecnico?> ObtenerPorIdAsync(int tecnicoId, CancellationToken cancellationToken = default) =>
-            Task.FromResult<Tecnico?>(null);
     }
 
     private class FakeUsuarioRepository : IUsuarioRepository

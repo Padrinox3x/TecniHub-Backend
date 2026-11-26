@@ -60,4 +60,21 @@ public class PublicacionServicioRepository : IPublicacionServicioRepository
     {
         await _context.PublicacionesServicio.AddAsync(publicacion, cancellationToken);
     }
+
+    public async Task<(int TotalSolicitados, int TotalCompletados)> ObtenerEstadisticasClienteAsync(
+        int clienteId,
+        CancellationToken cancellationToken = default)
+    {
+        var estados = await _context.PublicacionesServicio
+            .AsNoTracking()
+            .Where(s => s.ClienteId == clienteId)
+            .Select(s => (string?)s.Estado ?? string.Empty)
+            .ToListAsync(cancellationToken);
+
+        var completados = estados.Count(e =>
+            string.Equals(e, "Completado", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(e, "Finalizado", StringComparison.OrdinalIgnoreCase));
+
+        return (estados.Count, completados);
+    }
 }

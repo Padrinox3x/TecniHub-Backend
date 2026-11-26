@@ -17,7 +17,7 @@ builder.Services.AddSwaggerGen(options =>
     {
         Title = "TecniHub API",
         Version = "v1",
-        Description = "API de TecniHub para gestiÃ³n de servicios tÃ©cnicos, refacciones y perfiles"
+        Description = "API de TecniHub para gestión de servicios técnicos, refacciones y perfiles"
     });
 
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -46,19 +46,26 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-// Permitir solicitudes desde Angular
-var allowedOrigins = builder.Configuration
+// Permitir solicitudes desde Angular (Amplify en producción y localhost en desarrollo)
+var defaultOrigins = new[]
+{
+    "https://main.d30i6p1ps5qp33.amplifyapp.com",
+    "http://localhost:4200"
+};
+
+var configuredOrigins = builder.Configuration
     .GetSection("Cors:AllowedOrigins")
-    .Get<string[]>();
+    .Get<string[]>() ?? Array.Empty<string>();
+
+var origins = defaultOrigins
+    .Concat(configuredOrigins)
+    .Distinct(StringComparer.OrdinalIgnoreCase)
+    .ToArray();
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AngularFrontend", policy =>
     {
-        var origins = (allowedOrigins is { Length: > 0 })
-            ? allowedOrigins
-            : new[] { "http://localhost:4200" };
-
         policy
             .WithOrigins(origins)
             .AllowAnyHeader()
@@ -68,7 +75,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Configurar la tuberÃ­a de peticiones HTTP (Middleware)
+// Configurar la tubería de peticiones HTTP (Middleware)
 app.UseCors("AngularFrontend");
 
 app.UseExceptionHandler(errorApp =>
@@ -117,9 +124,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
-// El orden de los middlewares de seguridad es crÃ­tico
+// El orden de los middlewares de seguridad es crítico
 app.UseAuthentication();
 app.UseAuthorization();
 

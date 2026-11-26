@@ -15,7 +15,7 @@ builder.Services.AddSwaggerGen(options =>
     {
         Title = "TecniHub API",
         Version = "v1",
-        Description = "API de TecniHub para gestiÃ³n de servicios tÃ©cnicos, refacciones y perfiles"
+        Description = "API de TecniHub para gestión de servicios técnicos, refacciones y perfiles"
     });
 
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -37,13 +37,20 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-// Permitir solicitudes desde Angular
+// Permitir solicitudes desde Angular (Local y AWS Amplify)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AngularFrontend", policy =>
     {
         policy
-            .WithOrigins("http://localhost:4200")
+            .SetIsOriginAllowed(origin =>
+            {
+                if (Uri.TryCreate(origin, UriKind.Absolute, out var uri))
+                {
+                    return uri.Host == "localhost" || uri.Host.EndsWith(".amplifyapp.com");
+                }
+                return false;
+            })
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -51,14 +58,17 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Configurar la tuberÃ­a de peticiones HTTP (Middleware)
+// Configurar la tubería de peticiones HTTP (Middleware)
+app.UseSwagger(c =>
+{
+    c.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi3_0;
+});
+app.UseSwaggerUI();
+
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseHttpsRedirection();
 }
-
-app.UseHttpsRedirection();
 
 // Aplicar política CORS para Angular
 app.UseCors("AngularFrontend");

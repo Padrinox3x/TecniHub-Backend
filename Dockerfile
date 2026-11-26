@@ -1,5 +1,5 @@
 # Etapa 1: Build (.NET 10 SDK)
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copiar los archivos .csproj exactos de tu solución
@@ -17,7 +17,7 @@ WORKDIR "/src/Backend_TecniHub"
 RUN dotnet publish "Backend_TecniHub.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Etapa 2: Runtime (.NET 10 ASP.NET)
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 
 EXPOSE 8080
